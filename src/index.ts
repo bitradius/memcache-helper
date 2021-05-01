@@ -42,6 +42,16 @@ export default class extends EventEmitter {
         this.m_cache.del(this.stringify(key));
     }
 
+    public async exists (key: any): Promise<boolean> {
+        try {
+            await this.get(key);
+
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     public async flush (): Promise<void> {
         this.m_cache.flushAll();
     }
