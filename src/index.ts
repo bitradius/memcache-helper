@@ -26,9 +26,9 @@ export default class extends EventEmitter {
 
     public on(event: 'set', listener: (key: any, value: any) => void): this;
 
-    public on(event: 'set', listener: (key: any, value: any) => void): this;
+    public on(event: 'expired', listener: (key: any, value: any) => void): this;
 
-    public on(event: 'set', listener: (key: any, value: any) => void): this;
+    public on(event: 'del', listener: (key: any, value: any) => void): this;
 
     public on(event: 'flush', listener: () => void): this;
 
