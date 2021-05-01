@@ -15,7 +15,24 @@ export default class extends EventEmitter {
             stdTTL: m_ttl,
             checkperiod: m_checkPeriod
         });
+
+        this.m_cache.on('set', (key, value) => this.emit('set', this.unstringify(key), this.unstringify(value)));
+        this.m_cache.on('expired', (key, value) =>
+            this.emit('expired', this.unstringify(key), this.unstringify(value)));
+        this.m_cache.on('del', (key, value) => this.emit('del', this.unstringify(key), this.unstringify(value)));
+        this.m_cache.on('flush', () => this.emit('flush'));
+        this.m_cache.on('error', error => this.emit('error', error));
     }
+
+    public on(event: 'set', listener: (key: any, value: any) => void): this;
+
+    public on(event: 'set', listener: (key: any, value: any) => void): this;
+
+    public on(event: 'set', listener: (key: any, value: any) => void): this;
+
+    public on(event: 'flush', listener: () => void): this;
+
+    public on(event: 'error', listener: (error: Error) => void): this;
 
     public on (event: any, listener: (...args: any[]) => void): this {
         return super.on(event, listener);
@@ -38,15 +55,11 @@ export default class extends EventEmitter {
             throw new Error('Key not found');
         }
 
-        return JSON.parse(value as string);
-    }
-
-    private stringify (key: any): string {
-        return JSON.stringify(key);
+        return this.unstringify(value as string);
     }
 
     public async keys (): Promise<string[]> {
-        return this.m_cache.keys().map(key => JSON.parse(key));
+        return this.m_cache.keys().map(key => this.unstringify(key));
     }
 
     public async list<T> (): Promise<Map<any, T>> {
@@ -70,7 +83,7 @@ export default class extends EventEmitter {
 
         for (const key of Object.keys(data)) {
             if (data[key]) {
-                values.set(JSON.parse(key), JSON.parse(data[key] as string) as T);
+                values.set(this.unstringify(key), this.unstringify(data[key] as string) as T);
             }
         }
 
@@ -85,6 +98,10 @@ export default class extends EventEmitter {
         this.m_cache.ttl(set_key, ttl);
     }
 
+    private stringify (str: any): string {
+        return JSON.stringify(str);
+    }
+
     public async ttl (key: any): Promise<number> {
         const ttl = this.m_cache.getTtl(this.stringify(key));
 
@@ -93,5 +110,9 @@ export default class extends EventEmitter {
         }
 
         return ttl;
+    }
+
+    private unstringify<T> (str: any): T {
+        return this.unstringify(str);
     }
 }
